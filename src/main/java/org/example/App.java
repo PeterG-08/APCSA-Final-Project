@@ -3,72 +3,105 @@ package org.example;
 import javax.swing.*;
 
 import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.WebcamPanel;
-import com.github.sarxos.webcam.WebcamResolution;
 
 import java.awt.*;
 
 public class App {
     private final JPanel mainPanel;
 
-    private final String HOME = "HOME";
-    private final String VIDEO = "VIDEO";
+    private enum Panels {
+        HOME,
+        VIDEO,
+        IMAGE;
+    }
 
-    private final JPanel homePanel;
-    private final JPanel videoPanel;
+    private final Webcam webcam;
+
+    private Panels currentPanel = Panels.HOME;
 
     public App() {
-        JFrame window = new JFrame("Emojify");
+        // webcam config
+        webcam = Webcam.getDefault();
+
+        JFrame window = new JFrame("Emojify!");
 
         window.setSize(800, 600);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         mainPanel = new JPanel(new CardLayout());
 
-        homePanel = buildHomePanel();
-        videoPanel = buildVideoPanel();
-
-        mainPanel.add(homePanel, HOME);
-        mainPanel.add(videoPanel, VIDEO);
+        mainPanel.add(buildHomePanel(), Panels.HOME.toString());
+        mainPanel.add(buildVideoPanel(), Panels.VIDEO.toString());
+        mainPanel.add(buildImagePanel(), Panels.IMAGE.toString());
 
         window.add(mainPanel);
 
         window.setVisible(true);
     }
 
+    private final void setCurrentPanel(Panels panel) {
+        CardLayout cardLayout = (CardLayout) (mainPanel.getLayout());
+        
+        cardLayout.show(mainPanel, panel.toString());
+
+        currentPanel = panel;
+    }
+
     private final JPanel buildHomePanel() {
         JPanel panel = new JPanel();
 
         JButton toVideo = new JButton("To Video!");
+        JButton toImage = new JButton("To Image!");
 
-        CardLayout c = (CardLayout) (mainPanel.getLayout());
-
-        toVideo.addActionListener(_ -> c.show(mainPanel, VIDEO));
+        toVideo.addActionListener(_ -> { setCurrentPanel(Panels.VIDEO); new Thread(() -> webcam.open()).start(); });
+        toImage.addActionListener(_ -> setCurrentPanel(Panels.IMAGE));
 
         panel.add(new JLabel("Home"));
+
         panel.add(toVideo);
+        panel.add(toImage);
 
         return panel;
     }
 
     private final JPanel buildVideoPanel() {
-        Webcam webcam = Webcam.getDefault();
-        webcam.setViewSize(WebcamResolution.VGA.getSize());
-
         JPanel panel = new JPanel();
 
         JButton toHome = new JButton("To Home");
 
-        CardLayout c = (CardLayout) (mainPanel.getLayout());
+        toHome.addActionListener(_ -> { setCurrentPanel(Panels.HOME); new Thread(() -> webcam.close()).start(); });
 
-        toHome.addActionListener(_ -> c.show(mainPanel, HOME));
+        panel.add(new JLabel("Video"));
+        panel.add(toHome);
 
-        WebcamPanel webcamPanel = new WebcamPanel(webcam);
+        // image processing thread
+        new Thread(() -> {
+            while (true) {
+                try {
+                    if (currentPanel != Panels.VIDEO) {
+                        Thread.sleep(100);
 
-        webcamPanel.setMirrored(true);
-        webcamPanel.setImageSizeDisplayed(true);
+                        continue;
+                    }
 
-        panel.add(webcamPanel);
+                    System.out.println(webcam.isOpen());
+
+                    Thread.sleep(20);
+                } catch (InterruptedException e) {}
+            }
+        }).start();
+
+        return panel;
+    }
+
+    private final JPanel buildImagePanel() {
+        JPanel panel = new JPanel();
+
+        JButton toHome = new JButton("To Home");
+
+        toHome.addActionListener(_ -> setCurrentPanel(Panels.HOME));
+
+        panel.add(new JLabel("Image"));
         panel.add(toHome);
 
         return panel;
