@@ -1,8 +1,9 @@
 package org.emojify;
 
+import com.github.sarxos.webcam.Webcam;
+
 import javax.swing.*;
 
-import com.github.sarxos.webcam.Webcam;
 
 import java.awt.*;
 
@@ -48,7 +49,7 @@ public class App {
     }
 
     private final JPanel buildHomePanel() {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new GridBagLayout());
 
         JButton toVideo = new JButton("To Video!");
         JButton toImage = new JButton("To Image!");
