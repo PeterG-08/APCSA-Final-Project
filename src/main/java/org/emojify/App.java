@@ -11,13 +11,13 @@ public class App {
 
     private final Webcam webcam;
 
-    private enum Panels {
+    private enum Panel {
         HOME,
         VIDEO,
         IMAGE;
     }
 
-    private Panels currentPanel = Panels.HOME;
+    private Panel currentPanel = Panel.HOME;
 
     public App() {
         // webcam config
@@ -30,16 +30,16 @@ public class App {
 
         mainPanel = new JPanel(new CardLayout());
 
-        mainPanel.add(buildHomePanel(), Panels.HOME.toString());
-        mainPanel.add(buildVideoPanel(), Panels.VIDEO.toString());
-        mainPanel.add(buildImagePanel(), Panels.IMAGE.toString());
+        mainPanel.add(buildHomePanel(), Panel.HOME.toString());
+        mainPanel.add(buildVideoPanel(), Panel.VIDEO.toString());
+        mainPanel.add(buildImagePanel(), Panel.IMAGE.toString());
 
         window.add(mainPanel);
 
         window.setVisible(true);
     }
 
-    private final void setCurrentPanel(Panels panel) {
+    private final void setCurrentPanel(Panel panel) {
         CardLayout cardLayout = (CardLayout) (mainPanel.getLayout());
         
         cardLayout.show(mainPanel, panel.toString());
@@ -53,8 +53,8 @@ public class App {
         JButton toVideo = new JButton("To Video!");
         JButton toImage = new JButton("To Image!");
 
-        toVideo.addActionListener(_ -> { setCurrentPanel(Panels.VIDEO); new Thread(() -> webcam.open()).start(); });
-        toImage.addActionListener(_ -> setCurrentPanel(Panels.IMAGE));
+        toVideo.addActionListener(_ -> { setCurrentPanel(Panel.VIDEO); new Thread(() -> webcam.open()).start(); });
+        toImage.addActionListener(_ -> setCurrentPanel(Panel.IMAGE));
 
         panel.add(new JLabel("Home"));
 
@@ -69,7 +69,7 @@ public class App {
 
         JButton toHome = new JButton("To Home");
 
-        toHome.addActionListener(_ -> { setCurrentPanel(Panels.HOME); new Thread(() -> webcam.close()).start(); });
+        toHome.addActionListener(_ -> { setCurrentPanel(Panel.HOME); new Thread(() -> webcam.close()).start(); });
 
         panel.add(new JLabel("Video"));
         panel.add(toHome);
@@ -78,7 +78,7 @@ public class App {
         new Thread(() -> {
             while (true) {
                 try {
-                    if (currentPanel != Panels.VIDEO) {
+                    if (currentPanel != Panel.VIDEO) {
                         Thread.sleep(100); // idle
 
                         continue;
@@ -101,7 +101,7 @@ public class App {
 
         JButton toHome = new JButton("To Home");
 
-        toHome.addActionListener(_ -> setCurrentPanel(Panels.HOME));
+        toHome.addActionListener(_ -> setCurrentPanel(Panel.HOME));
 
         panel.add(new JLabel("Image"));
         panel.add(toHome);
