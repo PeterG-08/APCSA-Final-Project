@@ -51,16 +51,39 @@ public class App {
     private final JPanel buildHomePanel() {
         JPanel panel = new JPanel(new GridBagLayout());
 
-        JButton toVideo = new JButton("To Video!");
-        JButton toImage = new JButton("To Image!");
+        GridBagConstraints gbc = new GridBagConstraints();
 
-        toVideo.addActionListener(_ -> { setCurrentPanel(Panel.VIDEO); new Thread(() -> webcam.open()).start(); });
-        toImage.addActionListener(_ -> setCurrentPanel(Panel.IMAGE));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 10, 10, 10);
 
-        panel.add(new JLabel("Home"));
+        JLabel homeLabel = new JLabel("Home");
 
-        panel.add(toVideo);
-        panel.add(toImage);
+        homeLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        
+        panel.add(homeLabel, gbc);
+
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        JButton videoButton = new JButton("Video");
+        JButton imageButton = new JButton("Image");
+
+        gbc.gridx = 0;
+        panel.add(videoButton, gbc);
+
+        gbc.gridx = 1;
+        panel.add(imageButton, gbc);
+
+        videoButton.addActionListener(_ -> {
+            setCurrentPanel(Panel.VIDEO);
+            new Thread(() -> webcam.open()).start();
+        });
+
+        imageButton.addActionListener(_ -> setCurrentPanel(Panel.IMAGE));
 
         return panel;
     }
