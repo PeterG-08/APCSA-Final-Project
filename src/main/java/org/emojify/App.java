@@ -1,4 +1,4 @@
-package org.example;
+package org.emojify;
 
 import javax.swing.*;
 
@@ -9,13 +9,13 @@ import java.awt.*;
 public class App {
     private final JPanel mainPanel;
 
+    private final Webcam webcam;
+
     private enum Panels {
         HOME,
         VIDEO,
         IMAGE;
     }
-
-    private final Webcam webcam;
 
     private Panels currentPanel = Panels.HOME;
 
@@ -79,12 +79,14 @@ public class App {
             while (true) {
                 try {
                     if (currentPanel != Panels.VIDEO) {
-                        Thread.sleep(100);
+                        Thread.sleep(100); // idle
 
                         continue;
                     }
 
-                    System.out.println(webcam.isOpen());
+                    if (webcam.isOpen()) {
+                        // use the emojify function here
+                    }
 
                     Thread.sleep(20);
                 } catch (InterruptedException e) {}
