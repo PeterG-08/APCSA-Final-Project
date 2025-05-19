@@ -2,10 +2,15 @@ package org.emojify;
 
 import com.github.sarxos.webcam.Webcam;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageFilter;
+import java.io.IOException;
 
 public class App {
     private final JPanel mainPanel;
@@ -40,7 +45,7 @@ public class App {
         window.setVisible(true);
     }
 
-    private final void setCurrentPanel(Panel panel) {
+    private void setCurrentPanel(Panel panel) {
         CardLayout cardLayout = (CardLayout) (mainPanel.getLayout());
         
         cardLayout.show(mainPanel, panel.toString());
@@ -48,7 +53,26 @@ public class App {
         currentPanel = panel;
     }
 
-    private final JPanel buildHomePanel() {
+    private void createPanelThread(Runnable toRun, Panel panel) {
+        // image processing thread
+        new Thread(() -> {
+            while (true) {
+                try {
+                    if (currentPanel != panel) {
+                        Thread.sleep(100); // idle
+
+                        continue;
+                    }
+
+                    toRun.run();
+
+                    Thread.sleep(20);
+                } catch (InterruptedException e) {}
+            }
+        }).start();
+    }
+
+    private JPanel buildHomePanel() {
         JPanel panel = new JPanel(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -88,7 +112,7 @@ public class App {
         return panel;
     }
 
-    private final JPanel buildVideoPanel() {
+    private JPanel buildVideoPanel() {
         JPanel panel = new JPanel();
 
         JButton toHome = new JButton("To Home");
@@ -98,37 +122,44 @@ public class App {
         panel.add(new JLabel("Video"));
         panel.add(toHome);
 
-        // image processing thread
-        new Thread(() -> {
-            while (true) {
-                try {
-                    if (currentPanel != Panel.VIDEO) {
-                        Thread.sleep(100); // idle
-
-                        continue;
-                    }
-
-                    if (webcam.isOpen()) {
-                        // use the emojify function here
-                    }
-
-                    Thread.sleep(20);
-                } catch (InterruptedException e) {}
+        createPanelThread(() -> {
+            if (webcam.isOpen()) {
+                System.out.println("WEBCAM CONNECTED");
             }
-        }).start();
+        }, Panel.VIDEO);
 
         return panel;
     }
 
-    private final JPanel buildImagePanel() {
+    private JPanel buildImagePanel() {
         JPanel panel = new JPanel();
 
         JButton toHome = new JButton("To Home");
+        JButton loadImage = new JButton("Load Image");
+
+        JFileChooser fileChooser = new JFileChooser();
+
+        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png"));
+        fileChooser.addActionListener(e -> {
+            if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
+                BufferedImage image = null;
+
+                try {
+                    image = ImageIO.read(fileChooser.getSelectedFile());
+                } catch (IOException err) {
+                    err.printStackTrace();
+                }
+
+                System.out.println(new Color(image.getRGB(0, 0)));
+            }
+        });
 
         toHome.addActionListener(_ -> setCurrentPanel(Panel.HOME));
+        loadImage.addActionListener(_ -> fileChooser.showOpenDialog(loadImage));
 
         panel.add(new JLabel("Image"));
         panel.add(toHome);
+        panel.add(loadImage);
 
         return panel;
     }
