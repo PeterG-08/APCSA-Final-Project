@@ -150,6 +150,7 @@ public class App {
                     err.printStackTrace();
                 }
 
+                System.out.println(Emojifier.emojify(image));
                 System.out.println(new Color(image.getRGB(0, 0)));
             }
         });
