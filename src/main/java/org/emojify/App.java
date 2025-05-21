@@ -151,7 +151,6 @@ public class App {
                 }
 
                 System.out.println(Emojifier.emojify(image));
-                System.out.println(new Color(image.getRGB(0, 0)));
             }
         });
 
