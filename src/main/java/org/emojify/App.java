@@ -8,8 +8,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -116,34 +114,38 @@ public class App {
     private JPanel buildVideoPanel() {
         JPanel panel = new JPanel();
 
-        JButton toHome = new JButton("To Home");
+        JButton toHome = new JButton("⬛🟩🟥");
 
         toHome.addActionListener(_ -> { setCurrentPanel(Panel.HOME); new Thread(() -> webcam.close()).start(); });
 
-        JTextArea emojis = new JTextArea(100, 100);
+        JTextArea emojis = new JTextArea(10, 10);
+
+        // Display emojis directly in the JTextArea
+        String emojiString = "⬛🟩🟥😀";
+        emojis.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
+        emojis.setText(emojiString);
+        // Set font to one that supports emojis, like Segoe UI Emoji on Windows
+            emojis.setForeground(Color.BLACK);
+            emojis.setBackground(Color.WHITE);
+            emojis.setOpaque(true);
+            // No further code needed: if your system font supports color emojis (like Segoe UI Emoji on Windows 10/11), 
+            // and your Java version is 9+, the JTextArea should display color emojis. 
+            // If you still see black and white, try updating your Java version or running on a newer OS.
+
 
         panel.add(new JLabel("Video"));
         panel.add(toHome);
+        panel.add(new JLabel("🟦"));
 
         panel.add(emojis);
 
         createPanelThread(() -> {
-            if (webcam.isOpen()) {
-//                System.out.println("WEBCAM CONNECTED");
+            if (webcam.isOpen() && webcam.getImage() != null) {
+                BufferedImage image = ImageHelper.mirror(webcam.getImage());
 
-                BufferedImage image = webcam.getImage();
-//
-//                AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
-//                tx.translate(-image.getWidth(), 0);
-//
-//                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-//
-//                op.filter(image, null);
-
-                System.out.println(Emojifier.emojify(webcam.getImage()));
-//                SwingUtilities.invokeLater(() -> {
-//                    emojis.setText(Emojifier.emojify(webcam.getImage()));
-//                });
+                // SwingUtilities.invokeLater(() -> {
+                //     emojis.setText(Emojifier.emojify(image));
+                // });
             }
         }, Panel.VIDEO);
 
