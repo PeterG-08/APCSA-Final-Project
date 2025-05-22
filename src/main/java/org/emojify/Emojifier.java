@@ -5,7 +5,8 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 public class Emojifier {
-    private final static int TILE_PIXELS = 10;
+//    private final static int TILE_DIMENSIONS =
+    private final static int TILE_PIXELS = 3;
 
     private final static HashMap<int[], String> emojiMap = new HashMap<>();
 
@@ -15,7 +16,7 @@ public class Emojifier {
         emojiMap.put(new int[]{255, 176, 46}, "🟨");
         emojiMap.put(new int[]{0, 210, 106}, "🟩");
         emojiMap.put(new int[]{0, 166, 237}, "🟦");
-        emojiMap.put(new int[]{199, 144, 241}, "🟪");
+//        emojiMap.put(new int[]{199, 144, 241}, "🟪");
         emojiMap.put(new int[]{165, 105, 83}, "🟫");
         emojiMap.put(new int[]{0, 0, 0}, "⬜");
         emojiMap.put(new int[]{255, 255, 255}, "⬛");
@@ -27,17 +28,16 @@ public class Emojifier {
     public static String emojify(BufferedImage image) {
         String out = "";
 
-        System.out.println(image.getHeight());
-
-        for(int i = 0; i < image.getHeight() / TILE_PIXELS; i += 1) {
-            for(int j = 0; j < image.getWidth() / TILE_PIXELS; j += 1) {
+        for(int i = 0; TILE_PIXELS <= image.getHeight() - i * TILE_PIXELS; i++) {
+            for(int j = 0; TILE_PIXELS <= image.getWidth() - j * TILE_PIXELS; j++) {
                 int avR = 0;
                 int avG = 0;
                 int avB = 0;
 
-                for(int x = 0; x < TILE_PIXELS - 1; x++) {
-                    for(int y = 0; y < TILE_PIXELS - 1; y++) {
-                        Color tile = new Color(image.getRGB(i*TILE_PIXELS+x, j*TILE_PIXELS+y));
+                // find average rgb within that TILE_PIXELS * TILE_PIXELS square
+                for(int x = 0; x < TILE_PIXELS; x++) {
+                    for(int y = 0; y < TILE_PIXELS; y++) {
+                        Color tile = new Color(image.getRGB(j*TILE_PIXELS+x, i*TILE_PIXELS+y));
 
                         avR += tile.getRed();
                         avB += tile.getBlue();

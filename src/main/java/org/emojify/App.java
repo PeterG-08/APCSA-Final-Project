@@ -8,8 +8,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageFilter;
 import java.io.IOException;
 
 public class App {
@@ -66,7 +67,7 @@ public class App {
 
                     toRun.run();
 
-                    Thread.sleep(20);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {}
             }
         }).start();
@@ -119,12 +120,30 @@ public class App {
 
         toHome.addActionListener(_ -> { setCurrentPanel(Panel.HOME); new Thread(() -> webcam.close()).start(); });
 
+        JTextArea emojis = new JTextArea(100, 100);
+
         panel.add(new JLabel("Video"));
         panel.add(toHome);
 
+        panel.add(emojis);
+
         createPanelThread(() -> {
             if (webcam.isOpen()) {
-                System.out.println("WEBCAM CONNECTED");
+//                System.out.println("WEBCAM CONNECTED");
+
+                BufferedImage image = webcam.getImage();
+//
+//                AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+//                tx.translate(-image.getWidth(), 0);
+//
+//                AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+//
+//                op.filter(image, null);
+
+                System.out.println(Emojifier.emojify(webcam.getImage()));
+//                SwingUtilities.invokeLater(() -> {
+//                    emojis.setText(Emojifier.emojify(webcam.getImage()));
+//                });
             }
         }, Panel.VIDEO);
 
