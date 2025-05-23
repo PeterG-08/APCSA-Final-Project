@@ -20,7 +20,7 @@ public class ImageHelper {
         return op.filter(newImage, null);
     }
 
-    public static BufferedImage createTransparent(BufferedImage image) {
+    public static BufferedImage setBlack(BufferedImage image) {
         BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = newImage.createGraphics();

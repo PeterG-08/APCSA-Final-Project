@@ -30,7 +30,7 @@ public class App {
 
         JFrame window = new JFrame("Emojify!");
 
-        window.setSize(800, 600);
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         mainPanel = new JPanel(new CardLayout());
@@ -137,29 +137,28 @@ public class App {
         // layout
         panel.setLayout(new BorderLayout());
 
-        JLabel videoLabel = new JLabel("Video");
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
 
+        JLabel videoLabel = new JLabel("Video");
         videoLabel.setFont(new Font("Arial", Font.BOLD, 24));
         videoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        panel.add(videoLabel, BorderLayout.NORTH);
-
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.insets = new Insets(30, 0, 10, 0);
         gbc.anchor = GridBagConstraints.CENTER;
-
-        centerPanel.add(emojifiedVideo, gbc);
+        contentPanel.add(videoLabel, gbc);
 
         gbc.gridy = 1;
-        gbc.insets = new Insets(10, 0, 0, 0); 
+        gbc.insets = new Insets(0, 0, 20, 0);
+        contentPanel.add(emojifiedVideo, gbc);
 
-        centerPanel.add(toHome, gbc); 
-    
-        panel.add(centerPanel, BorderLayout.CENTER);
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        contentPanel.add(toHome, gbc);
+
+        panel.add(contentPanel, BorderLayout.CENTER);
 
         return panel;
     }

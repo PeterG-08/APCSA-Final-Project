@@ -10,7 +10,8 @@ public class Emojifier {
 
     private final static ArrayList<Color> COLORS = new ArrayList<>();
 
-    public static void setup() {
+    static {
+        // restricted amount of total colors
         for (int r = 0; r <= 255; r+=75) {
             for (int g = 0; g <= 255; g+=75) {
                 for (int b = 0; b <= 255; b+=75) {
@@ -18,19 +19,36 @@ public class Emojifier {
                 }
             }
         }
+    }
 
-        System.out.println(COLORS.size());
+    private static Color getClosestColor(Color in) {
+        double smallestDist = Double.MAX_VALUE;
+        Color closestColor = Color.WHITE;
+
+        for (Color color : COLORS) {
+            double dist = Math.sqrt(
+                    Math.pow(color.getRed() - in.getRed(), 2) + Math.pow(color.getGreen() - in.getGreen(), 2) + Math.pow(color.getBlue() - in.getBlue(), 2)
+            );
+
+            if (dist < smallestDist) {
+                smallestDist = dist;
+
+                closestColor = color;
+            }
+        }
+
+        return closestColor;
     }
 
     /**
      * Turns an image into a BufferedImage color tiles.
      */
     public static BufferedImage emojify(BufferedImage image) {
-        int sampleSize = 2; // averaging sample size
+        int sampleSize = 5; // averaging sample size
 
         BufferedImage emojified = new BufferedImage(image.getWidth() / sampleSize * (TILE_SIZE + MARGIN_SIZE), image.getHeight() / sampleSize * (TILE_SIZE + MARGIN_SIZE), BufferedImage.TYPE_INT_RGB);
 
-        emojified = ImageHelper.createTransparent(emojified);
+        emojified = ImageHelper.setBlack(emojified);
 
         for (int i = 0; sampleSize <= image.getHeight() - i * sampleSize; i++) {
             for (int j = 0; sampleSize <= image.getWidth() - j * sampleSize; j++) {
@@ -53,20 +71,7 @@ public class Emojifier {
                 avG /= sampleSize * sampleSize;
                 avB /= sampleSize * sampleSize;
 
-                double smallestDist = Double.MAX_VALUE;
-                Color closestColor = Color.WHITE;
-
-                for (Color color : COLORS) {
-                    double dist = Math.sqrt(
-                            Math.pow(color.getRed() - avR, 2) + Math.pow(color.getGreen() - avG, 2) + Math.pow(color.getBlue() - avB, 2)
-                    );
-
-                    if (dist < smallestDist) {
-                        smallestDist = dist;
-
-                        closestColor = color;
-                    }
-                }
+                Color closestColor = getClosestColor(new Color(avR, avG, avB));
 
                 // now fill in output image with the average color
                 for (int x = 0; x < TILE_SIZE; x++) {
