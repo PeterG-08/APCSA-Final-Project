@@ -65,7 +65,7 @@ public class App {
 
                     toRun.run();
 
-                    Thread.sleep(100);
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {}
             }
         }).start();
@@ -74,6 +74,17 @@ public class App {
     private JPanel buildHomePanel() {
         JPanel panel = new JPanel(new GridBagLayout());
 
+        JButton videoButton = new JButton("Video");
+        JButton imageButton = new JButton("Image");
+
+        videoButton.addActionListener(_ -> {
+            setCurrentPanel(Panel.VIDEO);
+            new Thread(() -> webcam.open()).start();
+        });
+
+        imageButton.addActionListener(_ -> setCurrentPanel(Panel.IMAGE));
+
+        // layout
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.gridx = 0;
@@ -92,21 +103,11 @@ public class App {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        JButton videoButton = new JButton("Video");
-        JButton imageButton = new JButton("Image");
-
         gbc.gridx = 0;
         panel.add(videoButton, gbc);
 
         gbc.gridx = 1;
         panel.add(imageButton, gbc);
-
-        videoButton.addActionListener(_ -> {
-            setCurrentPanel(Panel.VIDEO);
-            new Thread(() -> webcam.open()).start();
-        });
-
-        imageButton.addActionListener(_ -> setCurrentPanel(Panel.IMAGE));
 
         return panel;
     }
@@ -114,40 +115,51 @@ public class App {
     private JPanel buildVideoPanel() {
         JPanel panel = new JPanel();
 
-        JButton toHome = new JButton("⬛🟩🟥");
+        JButton toHome = new JButton("To Home");
+
+        JLabel emojifiedVideo = new JLabel();
 
         toHome.addActionListener(_ -> { setCurrentPanel(Panel.HOME); new Thread(() -> webcam.close()).start(); });
 
-        JTextArea emojis = new JTextArea(10, 10);
-
-        // Display emojis directly in the JTextArea
-        String emojiString = "⬛🟩🟥😀";
-        emojis.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 32));
-        emojis.setText(emojiString);
-        // Set font to one that supports emojis, like Segoe UI Emoji on Windows
-            emojis.setForeground(Color.BLACK);
-            emojis.setBackground(Color.WHITE);
-            emojis.setOpaque(true);
-            // No further code needed: if your system font supports color emojis (like Segoe UI Emoji on Windows 10/11), 
-            // and your Java version is 9+, the JTextArea should display color emojis. 
-            // If you still see black and white, try updating your Java version or running on a newer OS.
-
-
-        panel.add(new JLabel("Video"));
-        panel.add(toHome);
-        panel.add(new JLabel("🟦"));
-
-        panel.add(emojis);
-
         createPanelThread(() -> {
-            if (webcam.isOpen() && webcam.getImage() != null) {
-                BufferedImage image = ImageHelper.mirror(webcam.getImage());
+            BufferedImage webcamImage = webcam.getImage();
 
-                // SwingUtilities.invokeLater(() -> {
-                //     emojis.setText(Emojifier.emojify(image));
-                // });
+            if (webcam.isOpen() && webcamImage != null) {
+                BufferedImage mirroredImage = ImageHelper.mirror(webcamImage);
+
+                SwingUtilities.invokeLater(() -> {
+                    emojifiedVideo.setIcon(new ImageIcon(Emojifier.emojify(mirroredImage)));
+                    emojifiedVideo.repaint();
+                });
             }
         }, Panel.VIDEO);
+
+        // layout
+        panel.setLayout(new BorderLayout());
+
+        JLabel videoLabel = new JLabel("Video");
+
+        videoLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        videoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        panel.add(videoLabel, BorderLayout.NORTH);
+
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        centerPanel.add(emojifiedVideo, gbc);
+
+        gbc.gridy = 1;
+        gbc.insets = new Insets(10, 0, 0, 0); 
+
+        centerPanel.add(toHome, gbc); 
+    
+        panel.add(centerPanel, BorderLayout.CENTER);
 
         return panel;
     }
@@ -157,30 +169,65 @@ public class App {
 
         JButton toHome = new JButton("To Home");
         JButton loadImage = new JButton("Load Image");
+        JButton saveImage = new JButton("Save Image");
+
+        JLabel emojifiedImage = new JLabel();
 
         JFileChooser fileChooser = new JFileChooser();
 
-        fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png"));
+
         fileChooser.addActionListener(e -> {
             if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
-                BufferedImage image = null;
-
                 try {
-                    image = ImageIO.read(fileChooser.getSelectedFile());
+                    BufferedImage image = ImageIO.read(fileChooser.getSelectedFile());
+                    
+                    if (image != null) {
+                        SwingUtilities.invokeLater(() -> {
+                            emojifiedImage.setIcon(new ImageIcon(Emojifier.emojify(image)));
+                            emojifiedImage.repaint();
+                        });
+                    }
+
                 } catch (IOException err) {
                     err.printStackTrace();
                 }
-
-                System.out.println(Emojifier.emojify(image));
             }
         });
 
         toHome.addActionListener(_ -> setCurrentPanel(Panel.HOME));
         loadImage.addActionListener(_ -> fileChooser.showOpenDialog(loadImage));
 
-        panel.add(new JLabel("Image"));
-        panel.add(toHome);
-        panel.add(loadImage);
+        // layout
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        JLabel imageLabel = new JLabel("Image");
+        imageLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 3;
+        gbc.insets = new Insets(10, 10, 20, 10);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(imageLabel, gbc);
+
+        gbc.gridy = 1;
+        gbc.gridwidth = 3;
+        gbc.insets = new Insets(0, 10, 20, 10);
+        panel.add(emojifiedImage, gbc);
+
+        gbc.gridy = 2;
+        gbc.gridwidth = 3;
+        gbc.insets = new Insets(0, 10, 10, 10);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonPanel.add(toHome);
+        buttonPanel.add(loadImage);
+        buttonPanel.add(saveImage);
+
+        panel.add(buttonPanel, gbc);
 
         return panel;
     }
