@@ -12,9 +12,9 @@ public class Emojifier {
 
     static {
         // restricted amount of total colors
-        for (int r = 0; r <= 255; r += 65) {
-            for (int g = 0; g <= 255; g += 65) {
-                for (int b = 0; b <= 255; b += 65) {
+        for (int r = 0; r <= 255; r += 20) {
+            for (int g = 0; g <= 255; g += 20) {
+                for (int b = 0; b <= 255; b += 20) {
                     COLORS.add(new Color(r, g, b));
                 }
             }

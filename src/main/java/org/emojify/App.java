@@ -9,6 +9,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 public class App {
@@ -30,9 +31,17 @@ public class App {
 
         JFrame window = new JFrame("Emojify!");
 
-        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // full screen, and prevent resizing logic
+        window.setResizable(false); 
 
+        window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        window.setMinimumSize(screenSize);
+
+        // add in main container panel
         mainPanel = new JPanel(new CardLayout());
 
         mainPanel.add(buildHomePanel(), Panel.HOME.toString());
@@ -173,7 +182,14 @@ public class App {
         JLabel emojifiedImage = new JLabel();
 
         JFileChooser fileChooser = new JFileChooser();
+        JFileChooser saveChooser = new JFileChooser();
 
+        saveChooser.setDialogTitle("Save Image");
+        fileChooser.setDialogTitle("Load Image");
+
+        saveChooser.setApproveButtonText("Ok");
+
+        saveChooser.setFileFilter(new FileNameExtensionFilter("Image Files (.png)", "png"));
         fileChooser.setFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "jpeg", "png"));
 
         fileChooser.addActionListener(e -> {
@@ -194,8 +210,42 @@ public class App {
             }
         });
 
+        saveChooser.addActionListener(e -> {
+            Icon icon = emojifiedImage.getIcon();
+
+            if (!(icon instanceof ImageIcon)) {
+                return;
+            }
+
+            BufferedImage savedImage = new BufferedImage(
+                icon.getIconWidth(),
+                icon.getIconHeight(),
+                BufferedImage.TYPE_INT_ARGB
+            );
+
+            // draw emojified icon to saved image
+            Graphics2D g2d = savedImage.createGraphics();
+            icon.paintIcon(null, g2d, 0, 0);
+            g2d.dispose();
+
+
+            if (JFileChooser.APPROVE_SELECTION.equals(e.getActionCommand())) {
+
+                try {
+                    String path = saveChooser.getSelectedFile().getAbsolutePath() + ".png";
+
+                    ImageIO.write(savedImage, "png", new File(path));
+                } 
+                
+                catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         toHome.addActionListener(_ -> setCurrentPanel(Panel.HOME));
         loadImage.addActionListener(_ -> fileChooser.showOpenDialog(loadImage));
+        saveImage.addActionListener(_ -> saveChooser.showOpenDialog(saveImage));
 
         // layout
         panel.setLayout(new GridBagLayout());
