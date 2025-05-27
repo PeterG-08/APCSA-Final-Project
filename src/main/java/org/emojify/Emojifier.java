@@ -6,15 +6,17 @@ import java.util.ArrayList;
 
 public class Emojifier {
     private final static int TILE_SIZE = 10; // pixel size of tile "emoji" (this shouldn't change)
-    private final static int MARGIN_SIZE = 3; // the size of the margin white gap between tiles
+    private final static int MARGIN_SIZE = 3; // the size of the margin black gap between tiles
+
+    private final static int RGB_COLOR_SPACING = 20;
 
     private final static ArrayList<Color> COLORS = new ArrayList<>();
 
     static {
         // restricted amount of total colors
-        for (int r = 0; r <= 255; r += 20) {
-            for (int g = 0; g <= 255; g += 20) {
-                for (int b = 0; b <= 255; b += 20) {
+        for (int r = 0; r <= 255; r += RGB_COLOR_SPACING) {
+            for (int g = 0; g <= 255; g += RGB_COLOR_SPACING) {
+                for (int b = 0; b <= 255; b += RGB_COLOR_SPACING) {
                     COLORS.add(new Color(r, g, b));
                 }
             }
