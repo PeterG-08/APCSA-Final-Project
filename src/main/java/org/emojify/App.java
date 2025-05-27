@@ -128,7 +128,7 @@ public class App {
                 BufferedImage mirroredImage = ImageHelper.mirror(webcamImage);
 
                 SwingUtilities.invokeLater(() -> {
-                    emojifiedVideo.setIcon(new ImageIcon(Emojifier.emojify(mirroredImage)));
+                    emojifiedVideo.setIcon(new ImageIcon(Emojifier.emojify(mirroredImage, (int) (mainPanel.getWidth() / 1.2), (int) (mainPanel.getHeight() / 1.2))));
                     emojifiedVideo.repaint();
                 });
             }
@@ -183,7 +183,7 @@ public class App {
                     
                     if (image != null) {
                         SwingUtilities.invokeLater(() -> {
-                            emojifiedImage.setIcon(new ImageIcon(Emojifier.emojify(image)));
+                            emojifiedImage.setIcon(new ImageIcon(Emojifier.emojify(image, (int) (mainPanel.getWidth() / 1.2), (int) (mainPanel.getHeight() / 1.2))));
                             emojifiedImage.repaint();
                         });
                     }

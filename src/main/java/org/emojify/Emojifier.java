@@ -12,9 +12,9 @@ public class Emojifier {
 
     static {
         // restricted amount of total colors
-        for (int r = 0; r <= 255; r+=75) {
-            for (int g = 0; g <= 255; g+=75) {
-                for (int b = 0; b <= 255; b+=75) {
+        for (int r = 0; r <= 255; r += 65) {
+            for (int g = 0; g <= 255; g += 65) {
+                for (int b = 0; b <= 255; b += 65) {
                     COLORS.add(new Color(r, g, b));
                 }
             }
@@ -43,8 +43,21 @@ public class Emojifier {
     /**
      * Turns an image into a BufferedImage color tiles.
      */
-    public static BufferedImage emojify(BufferedImage image) {
-        int sampleSize = 5; // averaging sample size
+    public static BufferedImage emojify(BufferedImage image, int maxWidth, int maxHeight) {
+        int sampleSize = 1; // averaging sample size (start of with highest sample size)
+
+        // find a good sample size
+        while (true) {
+            int pixelWidth = image.getWidth() / sampleSize * (TILE_SIZE + MARGIN_SIZE);
+            int pixelHeight = image.getHeight() / sampleSize * (TILE_SIZE + MARGIN_SIZE);
+
+            // keep on increasing sample size until the emojified image fits the constraints
+            if (pixelWidth <= maxWidth && pixelHeight <= maxHeight) {
+                break;
+            }
+
+            sampleSize ++;
+        }
 
         BufferedImage emojified = new BufferedImage(image.getWidth() / sampleSize * (TILE_SIZE + MARGIN_SIZE), image.getHeight() / sampleSize * (TILE_SIZE + MARGIN_SIZE), BufferedImage.TYPE_INT_RGB);
 
