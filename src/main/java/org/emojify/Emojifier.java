@@ -8,7 +8,7 @@ public class Emojifier {
     private final static int TILE_SIZE = 10; // pixel size of tile "emoji" (this shouldn't change)
     private final static int MARGIN_SIZE = 3; // the size of the margin black gap between tiles
 
-    private final static int RGB_COLOR_SPACING = 20;
+    private final static int RGB_COLOR_SPACING = 55; // increase this to make it cooler
 
     private final static ArrayList<Color> COLORS = new ArrayList<>();
 
